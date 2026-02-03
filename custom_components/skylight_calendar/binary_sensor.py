@@ -39,7 +39,7 @@ class SkylightTaskCompletionSensor(BinarySensorEntity):
         """Initialize the sensor."""
         self._api = api
         self._category = category
-        self._attr_name = f"{category['attributes']['label']} Tasks Complete"
+        self._attr_name = f"{category['attributes']['label']} Task Status"
         self._attr_unique_id = f"{DOMAIN}_{category['id']}_tasks_complete"
         self._is_on = None
 
