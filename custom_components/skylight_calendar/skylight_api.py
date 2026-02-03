@@ -51,19 +51,18 @@ class SkylightAPI:
                     await self.authenticate(self.email, self.password)
                     headers["Authorization"] = f"Basic {self.auth_token}"
                     async with session.request(method, url, **kwargs) as retry_resp:
-                        return retry_resp
-                return resp
+                        return await retry_resp.json() if retry_resp.status == 200 else None
+                return await resp.json() if resp.status == 200 else None
     
     async def get_frames(self) -> List[Dict]:
         """Get user's frames."""
-        async with await self._make_request("GET", f"{self.base_url}/api/frames/calendar") as resp:
-            if resp.status == 200:
-                result = await resp.json()
-                frames = result.get("data", [])
-                if frames:
-                    self.frame_id = frames[0]["id"]  # Use first frame
-                return frames
-            return []
+        result = await self._make_request("GET", f"{self.base_url}/api/frames/calendar")
+        if result:
+            frames = result.get("data", [])
+            if frames:
+                self.frame_id = frames[0]["id"]  # Use first frame
+            return frames
+        return []
     
     async def get_categories(self) -> List[Dict]:
         """Get categories (people) for the frame."""
@@ -71,11 +70,8 @@ class SkylightAPI:
             await self.get_frames()
         
         url = f"{self.base_url}/api/frames/{self.frame_id}/categories"
-        async with await self._make_request("GET", url) as resp:
-            if resp.status == 200:
-                result = await resp.json()
-                return result.get("data", [])
-            return []
+        result = await self._make_request("GET", url)
+        return result.get("data", []) if result else []
     
     async def get_chores_for_today(self) -> List[Dict]:
         """Get today's chores."""
@@ -86,11 +82,8 @@ class SkylightAPI:
         url = f"{self.base_url}/api/frames/{self.frame_id}/chores"
         params = {"after": today, "before": today}
         
-        async with await self._make_request("GET", url, params=params) as resp:
-            if resp.status == 200:
-                result = await resp.json()
-                return result.get("data", [])
-            return []
+        result = await self._make_request("GET", url, params=params)
+        return result.get("data", []) if result else []
     
     async def check_category_completion(self, category_id: str) -> bool:
         """Check if all tasks for a category are completed today."""
