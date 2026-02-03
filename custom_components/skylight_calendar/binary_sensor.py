@@ -49,6 +49,10 @@ class SkylightTaskCompletionSensor(BinarySensorEntity):
         """Return true if tasks are complete."""
         return self._is_on
 
+    async def async_added_to_hass(self) -> None:
+        """When entity is added to hass."""
+        await self.async_update()
+
     async def async_update(self) -> None:
         """Update the sensor."""
         _LOGGER.debug("Updating sensor for category %s", self._category['attributes']['label'])
