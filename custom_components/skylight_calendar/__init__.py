@@ -19,11 +19,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register service to force update
     async def force_update(call):
         """Force update all Skylight sensors."""
+        # Trigger homeassistant.update_entity service for all our entities
         ent_reg = entity_registry.async_get(hass)
-        for entity_id, entity in ent_reg.entities.items():
-            if entity.platform == DOMAIN:
-                if state := hass.states.get(entity_id):
-                    await hass.helpers.entity_component.async_update_entity(entity_id)
+        entity_ids = [
+            entity_id for entity_id, entity in ent_reg.entities.items()
+            if entity.platform == DOMAIN
+        ]
+        
+        if entity_ids:
+            await hass.services.async_call(
+                "homeassistant", "update_entity", {"entity_id": entity_ids}
+            )
     
     hass.services.async_register(DOMAIN, "force_update", force_update)
     
