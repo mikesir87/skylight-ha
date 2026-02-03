@@ -1,4 +1,5 @@
 """Skylight Calendar platform."""
+import logging
 from datetime import timedelta
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -7,6 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
 SCAN_INTERVAL = timedelta(minutes=5)
 
 async def async_setup_entry(
@@ -19,12 +21,15 @@ async def async_setup_entry(
     
     # Get categories (people)
     categories = await api.get_categories()
+    _LOGGER.debug("Found %d categories", len(categories))
     
     entities = []
     for category in categories:
         if category.get("attributes", {}).get("linked_to_profile"):
+            _LOGGER.debug("Creating sensor for category: %s", category['attributes']['label'])
             entities.append(SkylightTaskCompletionSensor(api, category))
     
+    _LOGGER.debug("Adding %d entities", len(entities))
     async_add_entities(entities)
 
 class SkylightTaskCompletionSensor(BinarySensorEntity):
@@ -46,4 +51,10 @@ class SkylightTaskCompletionSensor(BinarySensorEntity):
 
     async def async_update(self) -> None:
         """Update the sensor."""
-        self._is_on = await self._api.check_category_completion(self._category["id"])
+        _LOGGER.debug("Updating sensor for category %s", self._category['attributes']['label'])
+        try:
+            self._is_on = await self._api.check_category_completion(self._category["id"])
+            _LOGGER.debug("Category %s completion status: %s", self._category['attributes']['label'], self._is_on)
+        except Exception as e:
+            _LOGGER.error("Error updating sensor for category %s: %s", self._category['attributes']['label'], e)
+            self._is_on = None
