@@ -49,6 +49,13 @@ class SkylightTaskCompletionSensor(BinarySensorEntity):
         return self._is_on
 
     @property
+    def icon(self):
+        """Return the icon based on completion status."""
+        if self._is_on is None:
+            return "mdi:checkbox-blank-circle-outline"
+        return "mdi:checkbox-marked-circle" if self._is_on else "mdi:checkbox-blank-circle-outline"
+
+    @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         return {
