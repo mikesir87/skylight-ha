@@ -23,7 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         ent_reg = entity_registry.async_get(hass)
         entity_ids = [
             entity_id for entity_id, entity in ent_reg.entities.items()
-            if entity.platform == DOMAIN
+            if entity.platform == DOMAIN and hass.states.get(entity_id) is not None
         ]
         
         if entity_ids:
