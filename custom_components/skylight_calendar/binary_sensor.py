@@ -41,13 +41,26 @@ class SkylightTaskCompletionSensor(BinarySensorEntity):
         self._category = category
         self._attr_name = f"{category['attributes']['label']} Tasks Complete"
         self._attr_unique_id = f"{DOMAIN}_{category['id']}_tasks_complete"
-        self._attr_device_class = "connectivity"
         self._is_on = None
 
     @property
     def is_on(self) -> bool | None:
         """Return true if tasks are complete."""
         return self._is_on
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return {
+            "device_class": None,
+        }
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        if self._is_on is None:
+            return None
+        return "Completed" if self._is_on else "Incomplete"
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
