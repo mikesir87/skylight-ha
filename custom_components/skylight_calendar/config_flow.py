@@ -1,11 +1,13 @@
 """Config flow for Skylight Calendar integration."""
+import logging
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN
 from .skylight_api import SkylightAPI
+
+_LOGGER = logging.getLogger(__name__)
 
 class SkylightCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Skylight Calendar."""
@@ -14,6 +16,7 @@ class SkylightCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
+        _LOGGER.debug("Config flow step_user called")
         errors = {}
         
         if user_input is not None:
@@ -21,7 +24,8 @@ class SkylightCalendarConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 api = SkylightAPI()
                 await api.authenticate(user_input["email"], user_input["password"])
                 return self.async_create_entry(title="Skylight Calendar", data=user_input)
-            except Exception:
+            except Exception as e:
+                _LOGGER.error("Authentication failed: %s", e)
                 errors["base"] = "auth_error"
 
         return self.async_show_form(
