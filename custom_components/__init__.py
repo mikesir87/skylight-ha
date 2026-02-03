@@ -1,0 +1,1 @@
+"""The Skylight Calendar integration."""

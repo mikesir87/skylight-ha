@@ -1,0 +1,3 @@
+force_update:
+  name: Force Update
+  description: Force update all Skylight task completion sensors

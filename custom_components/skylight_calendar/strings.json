@@ -1,0 +1,15 @@
+{
+  "config_flow": {
+    "step": {
+      "user": {
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "auth_error": "Invalid email or password"
+    }
+  }
+}
